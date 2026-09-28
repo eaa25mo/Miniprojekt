@@ -62,34 +62,45 @@ app.MapGet("/", (DataService service) =>
     return new { message = "Hello World!" };
 });
 
-app.MapGet("/api/books", (DataService service) =>
+
+app.MapGet("/api/posts", (DataService service) =>
 {
-    return service.GetBooks().Select(b => new {
-        title = b.Title,
-        bookId = b.BookId, 
-        author = new {
-            b.Author.AuthorId, b.Author.Fullname//, b.Author.Books // cycle
-        } 
-    });
+    return service.GetPosts();
+});
+app.MapGet("/api/post/{id}", (DataService service, int id) => {
+    return service.GetPost(id);
 });
 
-app.MapGet("/api/authors", (DataService service) =>
+app.MapPut("/api/post/{id}/upvote", (DataService service, int id, string data) => 
 {
-    return service.GetAuthors().Select(a => new { a.AuthorId, a.Fullname });
+    string result = service.UpdateUpvotePost(id, data.Titel, data.AuthorId);
+    return result;
 });
-
-app.MapGet("/api/authors/{id}", (DataService service, int id) => {
-    return service.GetAuthor(id);
-});
-
-app.MapPost("/api/books", (DataService service, NewBookData data) =>
+app.MapPut("/api/post/{id}/downvote", (DataService service, int id, string data) => 
 {
-    string result = service.CreateBook(data.Titel, data.AuthorId);
-    return new { message = result };
+    string result = service.UpdatedownvotePost(id, data.Titel, data.AuthorId);
+    return result;
 });
 
-
-
+app.MapPut("/api/posts/{id}/comment/{id}/upvote", (DataService service, int id, string data) => 
+{
+    string result = service.UpdateUpvoteComment(id, data.Titel, data.AuthorId);
+    return result;
+});
+app.MapPut("/api/posts/{id}/comment/{id}/downvote", (DataService service, int id, string data) => 
+{
+    string result = service.UpdateDownvoteComment(id, data.Titel, data.AuthorId);
+    return result;
+});
+app.MapPost("/api/posts", (DataService service, Post post) => 
+{
+    Post newPost = service.CreatePost(data.Titel, data.AuthorId);
+    return newPost;
+});
+app.MapPost("/api/posts/{id}/comment", (DataService service, int id, Comment comment) => 
+{
+    Comment newComment = service.CreateComment(id, data.Titel, data.AuthorId);
+    return newComment;
+});
 app.Run();
-
-record NewBookData(string Titel, int AuthorId);
+record NewpostData(string Titel, int AuthorId);

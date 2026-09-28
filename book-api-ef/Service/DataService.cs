@@ -18,48 +18,89 @@ public class DataService
     /// </summary>
     public void SeedData() {
         
-        Author author = db.Authors.FirstOrDefault()!;
-        // derfor list skal sættes!
-        // author.Books.Add(new Book { Title = "??", Author = author });
-        if (author == null) {
-            author = new Author { Fullname = "Kristian" };
-            db.Authors.Add(author);
-            db.Authors.Add(new Author { Fullname = "Søren" });
-            db.Authors.Add(new Author { Fullname = "Mette" });
-        }
-
-        Book book = db.Books.FirstOrDefault()!;
-        if (book == null)
-        {
-            db.Books.Add(new Book { Title = "Harry Potter", Author = author });
-            db.Books.Add(new Book { Title = "Ringenes Herre", Author = author });
-            db.Books.Add(new Book { Title = "Entity Framework for Dummies", Author = author });
-        }
+      
 
         db.SaveChanges();
     }
 
-    public List<Book> GetBooks() {
-        return db.Books.Include(b => b.Author).ToList();
+    
+    public List<Post> GetPosts() {
+        return db.Posts.Include(p => p.User).ToList();
     }
-
-    public Book GetBook(int id) {
-        return db.Books.Include(b => b.Author).FirstOrDefault(b => b.BookId == id);
+    
+    public Post GetPost(int id) {
+        return db.Posts.Include(p => p.User).FirstOrDefault(p => p.PostId == id);
     }
+    
+    public string updateDownVotePost(int postId) {
+        Post post = db.Posts.FirstOrDefault(t => t.PostId == postId);
+       
 
-    public List<Author> GetAuthors() {
-        return db.Authors.ToList();
-    }
+        if (post == null) {
+            return "post not found";
+        }
 
-    public Author GetAuthor(int id) {
-        return db.Authors.Include(a => a.Books).FirstOrDefault(a => a.AuthorId == id);
-    }
 
-    public string CreateBook(string title, int authorId) {
-        Author author = db.Authors.FirstOrDefault(a => a.AuthorId == authorId);
-        db.Books.Add(new Book { Title = title, Author = author });
+        post.Downvote--;
+        
         db.SaveChanges();
-        return "Book created";
+        return "Vote updated";
     }
+    public string updateUpvotePost(int postId) {
+        Post post = db.Posts.FirstOrDefault(t => t.PostId == postId);
+       
 
+        if (post == null) {
+            return "post not found";
+        }
+
+
+        post.Upvote++;
+        
+        db.SaveChanges();
+        return "Vote updated"; 
+    }
+    
+    
+    public string updateDownVoteComment(int commentId) {
+        Comment comment = db.Comment.FirstOrDefault(t => t.CommentId == commentId);
+       
+
+        if (comment == null) {
+            return "Comment not found";
+        }
+
+
+        comment.Downvote--;
+        
+        db.SaveChanges();
+        return "Comment updated";
+    }
+    public string updateUpvoteComment(int commmentId) {
+        Comment comment = db.comments.FirstOrDefault(t => t.CommentId == commentd);
+       
+
+        if (comment == null) {
+            return "comment not found";
+        }
+
+
+        comment.Upvote++;
+        
+        db.SaveChanges();
+        return "comment updated"; 
+    }
+ 
+    public string CreatePost(string title, int userId) {
+        User user = db.Users.FirstOrDefault(a => a.UserId == userId);
+        db.Posts.Add(new Post { Title = title, User = user });
+        db.SaveChanges();
+        return "Post created";
+    }
+    public string CreateComment(string text, int userId) {
+        User user = db.Users.FirstOrDefault(a => a.UserId == userId);
+        db.Posts.Comment.Add(new Comment { Text = text, User = user });
+        db.SaveChanges();
+        return "Comment created";
+    }
 }
