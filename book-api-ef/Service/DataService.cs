@@ -306,9 +306,13 @@ public class DataService
             Created = DateTime.Now //have to cehck latter
         };
         Post? post = db.Posts.FirstOrDefault(p => p.Id == postId);
-        if (post == null) Console.WriteLine("post not found");
+        if (post == null) {
+            Console.WriteLine("post not found");
+            return null;
+        }
         post.Comments.Add(newComment);
         db.SaveChanges();
+        
         return newComment;
     }
 }

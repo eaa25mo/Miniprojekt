@@ -31,7 +31,7 @@ public class ApiService
         return await http.GetFromJsonAsync<Post>(url);
     }
 
-    public async Task<Comment> CreateComment(string content, int postId, int userId)
+    public async Task<Comment?> CreateComment(string content, int postId, int userId)
     {
         string url = $"{baseAPI}posts/{postId}/comments";
      
@@ -50,7 +50,7 @@ public class ApiService
         return newComment;
     }
 
-    public async Task<Post> UpvotePost(int id)
+    public async Task<Post?> UpvotePost(int id)
     {
         string url = $"{baseAPI}posts/{id}/upvote/";
 
@@ -67,5 +67,24 @@ public class ApiService
 
         // Return the updated post (vote increased)
         return updatedPost;
+    }
+    public async Task<Comment?> UpvoteComment(int postId, int commentId)
+    {
+        string url = $"{baseAPI}posts/{postId}/comments/{commentId}upvote/";
+
+        // Post JSON to API, save the HttpResponseMessage
+        HttpResponseMessage msg = await http.PutAsJsonAsync(url, "");
+
+        // Get the JSON string from the response
+        string json = msg.Content.ReadAsStringAsync().Result;
+
+        // Deserialize the JSON string to a Post object
+        Comment? updatedComment = JsonSerializer.Deserialize<Comment>(json, new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true // Ignore case when matching JSON properties to C# properties
+        });
+
+        // Return the updated post (vote increased)
+        return updatedComment;
     }
 }

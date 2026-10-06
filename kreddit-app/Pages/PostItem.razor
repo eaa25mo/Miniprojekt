@@ -55,7 +55,7 @@ else
 
     <!-- This demonstrates how to pass in PostId to the component 'CreateComment'. See how 
          it is used in the file CreateComment.razor -->
-    <CreateComment PostId="@PostId" OnCommentCreated="ReloadPost"></CreateComment>
+    <CreateComment PostId="@PostId" OnCommentCreated="CreateComment"></CreateComment>
 }
 
 @code {
@@ -64,9 +64,9 @@ else
     public int PostId { get { return int.Parse(Id); } }
     public Post Post { get; set; }
 
-    private async Task ReloadPost()
+    private async Task CreateComment(Comment newComment)
     {
-        Post = await apiService.GetPost(PostId);
+        Post.Comments.Add(newComment);
     }
     protected override async Task OnInitializedAsync()
     {
