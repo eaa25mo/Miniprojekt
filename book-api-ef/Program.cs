@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.Json;
 
 using Data;
 using Service;
+using Model;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -18,7 +19,7 @@ builder.Services.AddCors(options =>
 });
 
 // Tilføj DbContext factory som service.
-builder.Services.AddDbContext<BookContext>(options =>
+builder.Services.AddDbContext<PostContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("ContextSQLite")));
 
 // Tilføj DataService så den kan bruges i endpoints
@@ -67,40 +68,43 @@ app.MapGet("/api/posts", (DataService service) =>
 {
     return service.GetPosts();
 });
-app.MapGet("/api/post/{id}", (DataService service, int id) => {
+app.MapGet("/api/posts/{id}", (DataService service, int id) => {
     return service.GetPost(id);
 });
 
-app.MapPut("/api/post/{id}/upvote", (DataService service, int id, string data) => 
+app.MapPut("/api/posts/{id}/upvote", (DataService service, int id) => 
 {
-    string result = service.UpdateUpvotePost(id, data.Titel, data.AuthorId);
+    string result = service.UpdateUpvotePost(id);
     return result;
 });
-app.MapPut("/api/post/{id}/downvote", (DataService service, int id, string data) => 
+app.MapPut("/api/posts/{id}/downvote", (DataService service, int id) => 
 {
-    string result = service.UpdatedownvotePost(id, data.Titel, data.AuthorId);
+    string result = service.UpdateDownvotePost(id);
     return result;
 });
 
-app.MapPut("/api/posts/{id}/comment/{id}/upvote", (DataService service, int id, string data) => 
+app.MapPut("/api/posts/{postId}/comments/{commentId}/upvote", (DataService service, int postId, int commentId) =>
 {
-    string result = service.UpdateUpvoteComment(id, data.Titel, data.AuthorId);
+    string result = service.UpdateUpvoteComment(postId, commentId);
     return result;
 });
-app.MapPut("/api/posts/{id}/comment/{id}/downvote", (DataService service, int id, string data) => 
+app.MapPut("/api/posts/{postId}/comments/{commentId}/downvote", (DataService service, int postId, int commentId) => 
 {
-    string result = service.UpdateDownvoteComment(id, data.Titel, data.AuthorId);
+    string result = service.UpdateDownvoteComment(postId, commentId);
     return result;
 });
-app.MapPost("/api/posts", (DataService service, Post post) => 
+app.MapPost("/api/posts", (DataService service, NewDataPost postData) => 
 {
-    Post newPost = service.CreatePost(data.Titel, data.AuthorId);
+    string newPost = service.CreatePost(postData.UserId, postData.Title, postData.Type, postData.Content);
     return newPost;
 });
-app.MapPost("/api/posts/{id}/comment", (DataService service, int id, Comment comment) => 
+app.MapPost("/api/posts/{id}/comments", (DataService service, int id, NewDataComment commentData) => 
 {
-    Comment newComment = service.CreateComment(id, data.Titel, data.AuthorId);
+    Comment? newComment = service.CreateComment(id, commentData.UserId, commentData.Content);
     return newComment;
 });
+
 app.Run();
-record NewpostData(string Titel, int AuthorId);
+
+record NewDataComment(int UserId, string Content);
+record NewDataPost(int UserId, string Title, PostType Type, string Content);
